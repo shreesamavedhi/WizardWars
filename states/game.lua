@@ -5,7 +5,8 @@ function loadGame()
         round = data.round,
         deck = data.deck,
         unlocks = data.unlocks,
-        state = data.state
+        state = data.state,
+        handSize = data.handSize
     }
 end
 

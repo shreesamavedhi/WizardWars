@@ -10,7 +10,8 @@ function createNewSave()
             ["paused"] = false,
             ["running"] = false,
             ["ended"] = false
-        }
+        },
+        handSize = 0
     }
 end
 
