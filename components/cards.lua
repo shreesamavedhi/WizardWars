@@ -1,4 +1,4 @@
-local deckX, deckY = 1000, 500
+local deckX, deckY = 90, 520
 local hand = {}
 local discarded = {}
 local cardScale = 0.7
@@ -126,13 +126,13 @@ end
 
 function updateCards()
     margin = 70 / #hand
-    selectHeight = 430
+    selectHeight = 500
     for i, card in pairs(hand) do
         hand[i].transform.x = (screenWidth - (cardWidth*cardScale)) / 2 - (i * ((cardWidth*cardScale) + margin)) + 300
         if card.selected then
             hand[i].transform.y = selectHeight
         else
-            hand[i].transform.y = deckY
+            hand[i].transform.y = deckY + 20
         end
     end
 end
@@ -161,12 +161,12 @@ end
 local font = nil
 function drawCards()
     for i, card in pairs(cards) do
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(1, 1, 1, 1)
         love.graphics.draw(deckBack, card.transform.x - (i*0.2), card.transform.y + (i*0.2), nil, cardScale, cardScale)
     end
     font = love.graphics.newFont(32)
     for _, card in pairs(hand) do
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(1, 1, 1, 1)
         love.graphics.draw(spriteSheet, suits[card.suit], card.transform.x, card.transform.y, nil, cardScale, cardScale)
         local textW = font:getWidth(card.number)
         local textH = font:getHeight(card.number)

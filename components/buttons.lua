@@ -14,14 +14,14 @@ local buttons = {}
 local font = nil
 
 function loadButtons()
-    font = love.graphics.newFont(32)
+    font = love.graphics.newFont(20)
     table.insert(buttons, newButton(
         "Save & Exit",
         function()
             saveGame()
             changeGameState("ended")
         end,
-        900,
+        1000,
         50
     ))
     table.insert(buttons, newButton(
@@ -29,21 +29,21 @@ function loadButtons()
         function()
             scoreCards()
         end,
-        900,
-        300
+        1000,
+        500
     ))
     table.insert(buttons, newButton(
         "Toss Spells",
         function()
             discardCards()
         end,
-        900,
-        400
+        1000,
+        600
     ))
 end
 
 function drawButtons()
-    local buttonWidth = screenWidth * 0.2
+    local buttonWidth = screenWidth * 0.1
     local buttonHeight = 64
     local margin = 16
     local totalHeight = (buttonHeight + margin) * #buttons
@@ -70,7 +70,9 @@ function drawButtons()
             button.bx,
             button.by,
             buttonWidth,
-            buttonHeight
+            buttonHeight,
+            10,
+            10
         )
 
         love.graphics.setColor(0, 0, 0, 1)

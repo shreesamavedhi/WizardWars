@@ -36,7 +36,9 @@ function love.draw()
         drawMenu()
     end
     if game.state.running then
+        drawBackground()
         drawPlayer()
+        drawEnemy()
         drawCards()
         drawButtons()
         drawBullets()

@@ -27,11 +27,11 @@ function updateBullet()
             table.remove(bullets, i)
         end
         -- remove bullets that hit the enemy if not polarMode
-        -- if newX > enemy.x and newX < enemy.x + enemyWidth 
-        -- and newY > enemy.y and newY < enemy.y + enemyHeight and not round.polarMode then
-        --     enemy.attackNums[1] = enemy.attackNums[1] - 1
-        --     table.remove(bullets, i)
-        -- end
+        if newX > enemy.x and newX < enemy.x + enemyWidth 
+        and newY > enemy.y and newY < enemy.y + enemyHeight and not round.polarMode then
+            enemy.attackNums[1] = enemy.attackNums[1] - 1
+            table.remove(bullets, i)
+        end
         -- remove bullets that hit the player if polarMode
         if newX > player.x and newX < player.x + playerWidth 
         and newY > player.y and newY < player.y + playerHeight and round.polarMode then
@@ -44,7 +44,7 @@ function updateBullet()
 end
 
 function drawBullets()
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(1, 1, 1, 1)
     for i, bullet in pairs(bullets) do
         love.graphics.circle("fill", bullet.x, bullet.y, 4)
     end

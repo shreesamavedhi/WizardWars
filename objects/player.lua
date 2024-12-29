@@ -29,8 +29,15 @@ function loadPlayer()
         [1] = stillRight,
         [-1] = stillLeft
     }
-    playerWidth, playerHeight = stillRight:getDimensions()
+    playerWidth, playerHeight = (player.spriteSheet:getWidth() / 4) * player.scale, (player.spriteSheet:getHeight() / 4) * player.scale
     player.anim = stillTable[1]
+end
+
+function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
+    return x1 < x2+w2 and
+           x2 < x1+w1 and
+           y1 < y2+h2 and
+           y2 < y1+h1
 end
 
 function updatePlayer(dt)
@@ -41,9 +48,13 @@ function updatePlayer(dt)
     player.vy = lvy~=0 and lvy or player.vy
     newX =  player.x + player.speed * lvx
     newY = player.y + player.speed * lvy
-    -- change this to be for bounding box
-    if newX < screenWidth and newX > -1
-    and newY < screenHeight and newY > -1 then
+
+    local clashEnemy = CheckCollision(newX, newY, playerWidth, playerHeight, enemy.x, enemy.y, enemyWidth, enemyHeight)
+
+    -- within bounding box
+    if newX > backgroundX and newX < backgroundWidth + backgroundX - playerWidth
+    and newY > backgroundY and newY < backgroundHeight + backgroundY - playerHeight
+    and not clashEnemy then
         player.x = newX
         player.y = newY
     end
@@ -82,6 +93,8 @@ colorArray = {
 
 function drawPlayer()
     player.anim:draw(player.spriteSheet, player.x, player.y, nil, player.scale, player.scale)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("line", player.x, player.y, playerHeight, playerWidth)
     if round.polarMode then
         player.defenseNum = player.defenseNum or love.math.random(10, 30)
         player.defenseColor = player.defenseColor or colorArray[love.math.random(1, #colorArray)]
