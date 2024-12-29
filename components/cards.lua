@@ -2,6 +2,8 @@ local deckX, deckY = 90, 520
 local hand = {}
 local discarded = {}
 local cardScale = 0.7
+local selectedScore = 0
+local suitMatches = false
 
 local
 function newCard(suit, number)
@@ -56,8 +58,10 @@ function selectCards(x, y)
         then
             if hand[i].selected == true then
                 hand[i].selected = false
+                selectedScore = selectedScore - tonumber(hand[i].number)
             else
                 hand[i].selected = true
+                selectedScore = selectedScore + tonumber(hand[i].number)
             end
         end
     end
@@ -80,22 +84,26 @@ function scoreCards()
         matchColor = player.defenseColor
     else
         -- check if cards add up to enemyNum
-        matchNum = enemy.attackNums[0]
-        matchColor = enemy.attackColor
+        matchNum = enemy.attackNums[1]
+        matchColor = enemy.attackColors[1]
     end
     for _, card in pairs(played) do
         scoredNum = scoredNum + tonumber(card.number)
         -- bonus points if suit matches the color
-        if card.suit == player.defenseColor then
+        if card.suit == matchColor then
             suitMatches = true
         end
     end
     if scoredNum == matchNum then
         player.shieldRepel = round.polarMode 
-        player.attackMagnet = not round.polarMode
+        enemy.attackMagnet = not round.polarMode
+
+        magnetTimer:reset()
+        shieldTimer:reset()
+
         removeDefenseNum()
-        
         removeAttackNum()
+
         print("GOOD SCORE")
         -- cue score sound effect
         if suitMatches then
@@ -115,6 +123,7 @@ function playCards()
         if hand[i].selected then
             hand[i].inHand = false
             hand[i].selected = false
+            selectedScore = selectedScore - tonumber(hand[i].number)
             --remove the card
             card = table.remove(hand, i)
             table.insert(played, card)
@@ -173,4 +182,6 @@ function drawCards()
         love.graphics.setColor(0, 0, 0, 1)
         love.graphics.print(card.number, font, card.transform.x + (((cardWidth * cardScale) - textW)/2), card.transform.y + (((cardHeight * cardScale) - textH)/2), nil, cardScale, cardScale)
     end
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(tostring(selectedScore), font, 90, 500)
 end

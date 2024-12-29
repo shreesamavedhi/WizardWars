@@ -7,7 +7,6 @@ function loadPlayer()
         vx = 1,
         vy = 1,
         shieldRepel = false,
-        attackMagnet = false,
         bonus = false,
         defenseNum = nil,
         defenseColor = nil,
@@ -50,16 +49,22 @@ function updatePlayer(dt)
     newY = player.y + player.speed * lvy
 
     local clashEnemy = checkCollision(newX, newY, playerWidth, playerHeight, enemy.x, enemy.y, enemyWidth, enemyHeight)
-
-    -- within bounding box
-    if newX > backgroundX and newX < backgroundWidth + backgroundX - playerWidth
+    local inBoundingBox = newX > backgroundX and newX < backgroundWidth + backgroundX - playerWidth
     and newY > backgroundY and newY < backgroundHeight + backgroundY - playerHeight
-    and not clashEnemy then
+    -- within bounding box
+    if inBoundingBox and not clashEnemy then
         player.x = newX
         player.y = newY
     end
     player.anim = (lvx~=0 or lvy~=0) and animTable[player.vx] or stillTable[player.vx]
     player.anim:update(dt)
+    updatePlayerSpells(dt)
+end
+
+function updatePlayerSpells(dt)
+    if player.shieldRepel and round.polarMode then
+
+    end
 end
 
 function removeDefenseNum()

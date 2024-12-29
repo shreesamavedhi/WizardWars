@@ -1,7 +1,7 @@
 function loadRound()
     round = {
         polarMode = false,
-        attackMode = true  
+        attackMode = true
     }
     polarTime = cron.every(10, function() 
         if round.polarMode then
@@ -9,6 +9,7 @@ function loadRound()
             print("POLAR OFF")
         else 
             round.polarMode = true
+            bulletSelector = false
             print("POLAR ON")
         end
     end)
@@ -16,6 +17,12 @@ function loadRound()
         if not round.attackMode then
             round.attackMode = true
         end
+    end)
+    magnetTimer = cron.after(4, function()
+        enemy.attackMagnet = false
+    end)
+    shieldTimer = cron.after(4, function()
+        player.shieldRepel = false
     end)
 end
 

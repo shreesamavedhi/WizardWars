@@ -2,10 +2,11 @@ function loadEnemy()
     enemy = {
         x = 500,
         y = 200,
-        speed = 0.3,
+        speed = 0.1,
         scale = 3.5,
         vx = 1,
         vy = 1,
+        attackMagnet = false,
         attackColors = {},
         attackNums = {},
         spriteSheet = love.graphics.newImage('sprites/player.png'),
@@ -33,13 +34,37 @@ function removeAttackNum()
     end
 end
 
-function distanceFrom(x1,y1,x2,y2) return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2) end
+function distanceFrom(x1,y1,x2,y2)
+    local distX =  x1 - x2
+    local distY =  y1 - y2
+    local distance = math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
+    return distX/distance, distY/distance
+end
 
-function updateEnemy()
-   lvx = player.x < enemy.x and -1 or player.x > enemy.x and 1 or 0
-   lvy = player.y < enemy.y and -1 or player.y > enemy.y and 1 or 0
+function updateEnemy(dt)
+    -- local distX =  player.x - enemy.x
+    -- local distY =  player.y - enemy.y
+    -- local distance = math.sqrt(distX*distX+distY*distY)
+    -- local distance = distanceFrom(player.x, player.y, enemy.x, enemy.y)
+    -- enemy.vx = distX/distance
+    -- enemy.vy = distY/distance
+    enemy.vx, enemy.vy = distanceFrom(player.x, player.y, enemy.x, enemy.y)
+    if not round.polarMode then
+        enemy.vx = enemy.vx * -1
+        enemy.vy = enemy.vy * -1
+    end
+    newX = enemy.x + enemy.vx*enemy.speed
+    newY = enemy.y + enemy.vy*enemy.speed
 
-
+    -- within bounding box
+    local inBoundingBox = newX > backgroundX and newX < backgroundWidth + backgroundX - enemyWidth
+    and newY > backgroundY and newY < backgroundHeight + backgroundY - enemyHeight
+    -- check collision with player when polarMode
+    local clashPlayer = checkCollision(newX, newY, enemyWidth, enemyHeight,  player.x - 20, player.y - 20, playerHeight + 40, playerWidth + 40)
+    if (not clashPlayer and round.polarMode or not round.polarMode) and inBoundingBox then
+            enemy.x = newX
+            enemy.y = newY
+    end
 end
 
 function drawEnemy()

@@ -24,8 +24,8 @@ function updateBullet(dt)
         bullet.x = newX
         bullet.y = newY
         -- remove bullets that are out of bounds
-        if newX < backgroundX and newX > backgroundWidth + backgroundX
-        and newY < backgroundY and newY > backgroundHeight + backgroundY then
+        if newX < backgroundX or newX > backgroundWidth + backgroundX
+        or newY < backgroundY or newY > backgroundHeight + backgroundY then
             print("removed out of bounds")
             table.remove(bullets, i)
         end
@@ -57,6 +57,16 @@ function updateBullet(dt)
         bulletSelector = false
     end
     attackReset:update(dt)
+    updateEnemySpells(dt)
+end
+
+function updateEnemySpells(dt)
+    if enemy.attackMagnet and not round.polarMode then
+        for i, bullet in pairs(bullets) do
+            bullet.vx, bullet.vy = distanceFrom(enemy.x, enemy.y, bullet.x, bullet.y)
+        end
+        magnetTimer:update(dt)
+    end
 end
 
 function drawBullets()
