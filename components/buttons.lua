@@ -1,8 +1,10 @@
 local
-function newButton(text, fn)
+function newButton(text, fn, x, y)
     return {
         text = text,
         fn = fn,
+        bx = x,
+        by = y,
         now = false,
         last = false
     }
@@ -14,53 +16,46 @@ local font = nil
 function loadButtons()
     font = love.graphics.newFont(32)
     table.insert(buttons, newButton(
-        "Start New Run",
+        "Save & Exit",
         function()
-            startNewRun()
-        end
+            saveGame()
+            changeGameState("ended")
+        end,
+        900,
+        50
     ))
     table.insert(buttons, newButton(
-        "Continue Run",
+        "Cast Spell",
         function()
-            continueRun()
-        end
+            scoreCards()
+        end,
+        900,
+        300
     ))
     table.insert(buttons, newButton(
-        "Collections",
+        "Toss Spells",
         function()
-            print("Collections")
-        end
-    ))
-    table.insert(buttons, newButton(
-        "Settings",
-        function()
-            print("Settings")
-        end
-    ))
-    table.insert(buttons, newButton(
-        "Exit",
-        function()
-            love.event.quit(0)
-        end
+            discardCards()
+        end,
+        900,
+        400
     ))
 end
 
 function drawButtons()
-    local buttonWidth = screenWidth * 1/3
+    local buttonWidth = screenWidth * 0.2
     local buttonHeight = 64
     local margin = 16
     local totalHeight = (buttonHeight + margin) * #buttons
-    
+
     for i, button in ipairs(buttons) do
         button.last = button.now
-        local bx = (screenWidth - buttonWidth) / 2
-        local by = (screenHeight - totalHeight) / 2 + ((i - 1) * (buttonHeight + margin))
 
         local color = {0.4, 0.4, 0.5, 1.0}
         local mx, my = love.mouse.getPosition()
 
-        local hot = mx > bx and mx < bx + buttonWidth 
-                and my > by and my < by + buttonHeight
+        local hot = mx > button.bx and mx < button.bx + buttonWidth 
+                and my > button.by and my < button.by + buttonHeight
         
         if hot then
             color = {0.8, 0.8, 0.9, 1.0}
@@ -72,8 +67,8 @@ function drawButtons()
         love.graphics.setColor(unpack(color))
         love.graphics.rectangle(
             "fill", 
-            bx,
-            by,
+            button.bx,
+            button.by,
             buttonWidth,
             buttonHeight
         )
@@ -84,8 +79,8 @@ function drawButtons()
         love.graphics.print(
             button.text,
             font,
-            bx + ((buttonWidth - textW)/2),
-            by + ((buttonHeight - textH)/2)
+            button.bx + ((buttonWidth - textW)/2),
+            button.by + ((buttonHeight - textH)/2)
         )
     end
 end

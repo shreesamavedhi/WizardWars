@@ -1,7 +1,7 @@
 function createNewSave()
     return {
-        level = 0,
-        round = 0,
+        level = 1,
+        round = 1,
         saveCount = 0,
         deck = {},
         unlocks = {},
@@ -10,8 +10,7 @@ function createNewSave()
             ["paused"] = false,
             ["running"] = false,
             ["ended"] = false
-        },
-        handSize = 0
+        }
     }
 end
 
@@ -22,7 +21,7 @@ function saveGame()
     data.deck = game.deck
     data.unlocks = game.unlocks
     data.state = game.state
-    love.filesystem.write("saveGame.lua", table.show(data, "data"))
+    love.filesystem.write("saveGame.lua", serialize(data))
 end
 
 function loadData()

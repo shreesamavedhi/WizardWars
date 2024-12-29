@@ -5,8 +5,7 @@ function loadGame()
         round = data.round,
         deck = data.deck,
         unlocks = data.unlocks,
-        state = data.state,
-        handSize = data.handSize
+        state = data.state
     }
 end
 
@@ -22,6 +21,7 @@ function startNewRun()
         changeGameState("ended")
     end
     changeGameState("running")
+    love.graphics.clear()
 end
 
 function changeGameState(state)
