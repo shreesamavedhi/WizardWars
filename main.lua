@@ -29,6 +29,7 @@ function love.update(dt)
         updateEnemy(dt)
         updateCards()
         polarTime:update(dt)
+        updateRound()
     end
 end
 
@@ -43,5 +44,10 @@ function love.draw()
         drawCards()
         drawButtons()
         drawBullets()
+    end
+    if game.state.shop then
+        drawBackground()
+        drawCards()
+        drawButtons()
     end
 end

@@ -10,12 +10,13 @@ function newButton(text, fn, x, y)
     }
 end
 
-local buttons = {}
+local gameButtons = {}
+local shopButtons = {}
 local font = nil
 
 function loadButtons()
     font = love.graphics.newFont(20)
-    table.insert(buttons, newButton(
+    table.insert(shopButtons, newButton(
         "Save & Exit",
         function()
             saveGame()
@@ -24,7 +25,23 @@ function loadButtons()
         1000,
         50
     ))
-    table.insert(buttons, newButton(
+    table.insert(shopButtons, newButton(
+        "Buy Spell",
+        function()
+            print("Bought Spell")
+        end,
+        1000,
+        150
+    ))
+    table.insert(shopButtons, newButton(
+        "Next Round",
+        function()
+            print("Next Round")
+        end,
+        1000,
+        250
+    ))
+    table.insert(gameButtons, newButton(
         "Cast Spell",
         function()
             scoreCards()
@@ -32,7 +49,7 @@ function loadButtons()
         1000,
         500
     ))
-    table.insert(buttons, newButton(
+    table.insert(gameButtons, newButton(
         "Toss Spells",
         function()
             discardCards()
@@ -43,6 +60,12 @@ function loadButtons()
 end
 
 function drawButtons()
+    local buttons = {}
+    if game.state.running then
+        buttons = gameButtons
+    elseif game.state.shop then
+        buttons = shopButtons
+    end
     local buttonWidth = screenWidth * 0.1
     local buttonHeight = 64
     local margin = 16

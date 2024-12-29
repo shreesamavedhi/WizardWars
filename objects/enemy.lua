@@ -42,12 +42,6 @@ function distanceFrom(x1,y1,x2,y2)
 end
 
 function updateEnemy(dt)
-    -- local distX =  player.x - enemy.x
-    -- local distY =  player.y - enemy.y
-    -- local distance = math.sqrt(distX*distX+distY*distY)
-    -- local distance = distanceFrom(player.x, player.y, enemy.x, enemy.y)
-    -- enemy.vx = distX/distance
-    -- enemy.vy = distY/distance
     enemy.vx, enemy.vy = distanceFrom(player.x, player.y, enemy.x, enemy.y)
     if not round.polarMode then
         enemy.vx = enemy.vx * -1

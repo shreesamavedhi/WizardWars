@@ -1,14 +1,14 @@
 local deckX, deckY = 90, 520
-local hand = {}
-local discarded = {}
 local cardScale = 0.7
 local selectedScore = 0
 local suitMatches = false
+local topOfDeck = nil
 
 local
 function newCard(suit, number)
     return {
         inHand = false,
+        discarded = false,
         selected = false,
         transform = {
             x = deckX,
@@ -32,13 +32,23 @@ function loadCards()
     suits["fire"] = love.graphics.newQuad(cardWidth * 3, 0, cardWidth, cardHeight, spriteSheet)
 
     cards = {}
-    for suit, _ in pairs(suits) do
-        for j = 1, 9 do
-            table.insert(cards, newCard(suit, tostring(j)))
+    if #game.deck == 0 then
+        -- create new deck
+        for suit, _ in pairs(suits) do
+            for j = 1, 9 do
+                table.insert(cards, newCard(suit, tostring(j)))
+            end
+        end
+    else
+        -- load game deck from save data
+        for _, card in pairs(game.deck) do
+            table.insert(cards, card)
         end
     end
     shuffleCards()
-    drawHand()
+    topOfDeck = #cards
+    print("Load", 5)
+    drawHand(5)
 end
 
 function shuffleCards()
@@ -50,31 +60,29 @@ function shuffleCards()
 end
 
 function selectCards(x, y)
-    for i, card in pairs(hand) do
-        if x > card.transform.x
-            and x < card.transform.x + (cardWidth * cardScale)
-            and y > card.transform.y
-            and y < card.transform.y + (cardHeight * cardScale)
-        then
-            if hand[i].selected == true then
-                hand[i].selected = false
-                selectedScore = selectedScore - tonumber(hand[i].number)
+    for i, card in pairs(cards) do
+        local isSelecting = x > card.transform.x and x < card.transform.x + (cardWidth * cardScale) 
+                    and y > card.transform.y and y < card.transform.y + (cardHeight * cardScale)
+        if card.inHand and isSelecting then
+            if cards[i].selected == true then
+                cards[i].selected = false
+                selectedScore = selectedScore - tonumber(cards[i].number)
             else
-                hand[i].selected = true
-                selectedScore = selectedScore + tonumber(hand[i].number)
+                cards[i].selected = true
+                selectedScore = selectedScore + tonumber(cards[i].number)
             end
         end
     end
 end
 
 function discardCards()
-    local played = playCards()
-    drawHand()
+    local disCard = playCards()
+    drawHand(#disCard)
 end
 
 function scoreCards()
     local played = playCards()
-    drawHand()
+    drawHand(#played)
     local scoredNum = 0
     local suitMatches = false
     local matchNum, matchColor = nil, nil
@@ -119,68 +127,74 @@ end
 
 function playCards()
     local played = {}
-    for i = #hand, 1, -1 do
-        if hand[i].selected then
-            hand[i].inHand = false
-            hand[i].selected = false
-            selectedScore = selectedScore - tonumber(hand[i].number)
-            --remove the card
-            card = table.remove(hand, i)
+    for i, card in pairs(cards) do
+        if card.selected then
+            cards[i].inHand = false
+            cards[i].selected = false
+            cards[i].discarded = true
+            selectedScore = selectedScore - tonumber(cards[i].number)
             table.insert(played, card)
-            table.insert(discarded, card)
         end
     end
     return played
 end
 
 function updateCards()
-    margin = 70 / #hand
+    margin = 70 / 5
     selectHeight = 500
-    for i, card in pairs(hand) do
-        hand[i].transform.x = (screenWidth - (cardWidth*cardScale)) / 2 - (i * ((cardWidth*cardScale) + margin)) + 300
-        if card.selected then
-            hand[i].transform.y = selectHeight
-        else
-            hand[i].transform.y = deckY + 20
+    local inHandCount = 0
+    for i = 1, #cards, 1 do
+        if cards[i].inHand then
+            inHandCount = inHandCount + 1
+            cards[i].transform.x = (screenWidth - (cardWidth*cardScale)) / 2 - (inHandCount * ((cardWidth*cardScale) + margin)) + 300
+            if cards[i].selected then
+                cards[i].transform.y = selectHeight
+            else
+                cards[i].transform.y = deckY + 20
+            end
         end
     end
 end
 
-
 function dealCard()
     if #cards == 0 then return end
-    cards[#cards].inHand = true
-    table.insert(hand, cards[#cards])
-    _ = table.remove(cards,#cards)
+    cards[topOfDeck].inHand = true
+    topOfDeck = topOfDeck - 1
 end
 
-function drawHand()
-    numDraw = 5 - #hand
+function drawHand(numDraw)
     for i = 1, numDraw do
         dealCard()
     end
 end
 
 function returnToDeck()
-    for i, _ in pairs(cards) do
+    for i, card in pairs(cards) do
         cards[i].inHand = false
+        cards[i].selected = false
+        cards[i].discarded = false
+        cards[i].transform.x = deckX
+        cards[i].transform.y = deckY
     end
+    shuffleCards()
 end
 
 local font = nil
 function drawCards()
-    for i, card in pairs(cards) do
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.draw(deckBack, card.transform.x - (i*0.2), card.transform.y + (i*0.2), nil, cardScale, cardScale)
-    end
     font = love.graphics.newFont(32)
-    for _, card in pairs(hand) do
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.draw(spriteSheet, suits[card.suit], card.transform.x, card.transform.y, nil, cardScale, cardScale)
-        local textW = font:getWidth(card.number)
-        local textH = font:getHeight(card.number)
-        love.graphics.setColor(0, 0, 0, 1)
-        love.graphics.print(card.number, font, card.transform.x + (((cardWidth * cardScale) - textW)/2), card.transform.y + (((cardHeight * cardScale) - textH)/2), nil, cardScale, cardScale)
+    for i, card in pairs(cards) do
+        if card.inHand then
+            love.graphics.setColor(1, 1, 1, 1)
+            -- print(card.transform.x, card.transform.y)
+            love.graphics.draw(spriteSheet, suits[card.suit], card.transform.x, card.transform.y, nil, cardScale, cardScale)
+            local textW = font:getWidth(card.number)
+            local textH = font:getHeight(card.number)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.print(card.number, font, card.transform.x + (((cardWidth * cardScale) - textW)/2), card.transform.y + (((cardHeight * cardScale) - textH)/2), nil, cardScale, cardScale)
+        elseif not card.discarded then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(deckBack, card.transform.x - (i*0.2), card.transform.y + (i*0.2), nil, cardScale, cardScale)
+        end
     end
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print(tostring(selectedScore), font, 90, 500)

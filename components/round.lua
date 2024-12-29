@@ -26,3 +26,10 @@ function loadRound()
     end)
 end
 
+function updateRound()
+    if #enemy.attackNums == 0 then
+        changeGameState("shop")
+        game.round = game.round + 1
+        returnToDeck()
+    end
+end

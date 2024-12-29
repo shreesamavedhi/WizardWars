@@ -26,7 +26,7 @@ end
 
 function changeGameState(state)
     game.state.menu = state == "menu"
-    game.state.paused = state == "paused"
+    game.state.shop = state == "shop"
     game.state.running = state == "running"
     game.state.ended = state == "ended"
 
