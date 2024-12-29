@@ -1,8 +1,7 @@
 function loadRound()
     round = {
         polarMode = false,
-        attackMode = true,
-        
+        attackMode = true  
     }
     polarTime = cron.every(10, function() 
         if round.polarMode then

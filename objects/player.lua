@@ -33,7 +33,7 @@ function loadPlayer()
     player.anim = stillTable[1]
 end
 
-function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
+function checkCollision(x1,y1,w1,h1, x2,y2,w2,h2)
     return x1 < x2+w2 and
            x2 < x1+w1 and
            y1 < y2+h2 and
@@ -49,7 +49,7 @@ function updatePlayer(dt)
     newX =  player.x + player.speed * lvx
     newY = player.y + player.speed * lvy
 
-    local clashEnemy = CheckCollision(newX, newY, playerWidth, playerHeight, enemy.x, enemy.y, enemyWidth, enemyHeight)
+    local clashEnemy = checkCollision(newX, newY, playerWidth, playerHeight, enemy.x, enemy.y, enemyWidth, enemyHeight)
 
     -- within bounding box
     if newX > backgroundX and newX < backgroundWidth + backgroundX - playerWidth
@@ -60,24 +60,12 @@ function updatePlayer(dt)
     end
     player.anim = (lvx~=0 or lvy~=0) and animTable[player.vx] or stillTable[player.vx]
     player.anim:update(dt)
-    playerAttack(dt)
 end
 
 function removeDefenseNum()
     if round.polarMode then
         player.defenseNum, player.defenseColor = nil, nil
     end
-end
-
-function playerAttack(dt)
-    local isDown = love.keyboard.isDown
-    if not round.polarMode and isDown("space") and round.attackMode then
-        print("attacked")
-        addBullet(player.x, player.y, player.vx, player.vy)
-        round.attackMode = false
-        attackReset:reset()
-    end
-    attackReset:update(dt)
 end
 
 colors = {

@@ -24,7 +24,7 @@ end
 
 function love.update(dt)
     if game.state.running then
-        updateBullet()
+        updateBullet(dt)
         updatePlayer(dt)
         updateCards()
         polarTime:update(dt)

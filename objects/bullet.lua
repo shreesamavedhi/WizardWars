@@ -1,28 +1,31 @@
+local lastBulletAngle, lastBx, lastBy = 0, nil, nil
+
 function loadBullets()
     bullets = {}
+    bulletSelector = false
 end
 
-function addBullet(px, py, pvx, pvy)
+function addBullet(bx, by, bvx, bvy)
     table.insert(bullets, {
-        x = px,
-        y = py,
-        vx = pvx,
-        vy = pvy,
+        x = bx,
+        y = by,
+        vx = bvx,
+        vy = bvy,
         speed = 1
     })
 end
 
-function updateBullet()
+function updateBullet(dt)
+    local isDown = love.keyboard.isDown
     for i = #bullets, 1, -1 do
         bullet = bullets[i]
         newX =  bullet.x + bullet.speed * bullet.vx
         newY = bullet.y + bullet.speed * bullet.vy
         bullet.x = newX
         bullet.y = newY
-        print(bullet.x, bullet.y)
         -- remove bullets that are out of bounds
-        if not (newX < screenWidth and newX > -1
-        and newY < screenHeight and newY > -1) then
+        if newX < backgroundX and newX > backgroundWidth + backgroundX
+        and newY < backgroundY and newY > backgroundHeight + backgroundY then
             print("removed out of bounds")
             table.remove(bullets, i)
         end
@@ -39,13 +42,32 @@ function updateBullet()
             player.defenseNum = player.defenseNum - 1
             table.remove(bullets, i)
         end
-
     end
+    -- attack mode
+    if not round.polarMode and round.attackMode and not bulletSelector then
+        bulletSelector = true
+        round.attackMode = false
+        attackReset:reset(dt)
+    end
+    if bulletSelector and isDown("space") and round.attackMode then
+        print("SECOND SPACE")
+        local bvx = math.cos(lastBulletAngle)
+        local bvy = math.sin(lastBulletAngle)
+        addBullet(lastBx, lastBy, bvx, bvy)
+        bulletSelector = false
+    end
+    attackReset:update(dt)
 end
 
 function drawBullets()
     love.graphics.setColor(1, 1, 1, 1)
     for i, bullet in pairs(bullets) do
         love.graphics.circle("fill", bullet.x, bullet.y, 4)
+    end
+    if bulletSelector then
+        lastBulletAngle = lastBulletAngle + 0.02
+        lastBx = player.x + (playerWidth / 2) + math.cos(lastBulletAngle) * 50
+        lastBy = player.y + (playerHeight / 2) + math.sin(lastBulletAngle) * 50
+        love.graphics.circle("fill", lastBx, lastBy, 4)
     end
 end
