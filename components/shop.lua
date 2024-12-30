@@ -45,11 +45,13 @@ function loadShop()
         newCardUnlock("ice", -2, 3, "CRD_NegTwo")
     }
     -- load unlocks
-    for i, curList in pairs(unlockList) do
+    for i = #unlockList, 1, -1 do
         for _, unlockedName in pairs(game.unlocks) do
-            if curList.name == unlockedName then
-                unlockList[i].fn()
-                table.remove(unlockList, i)
+            if #unlockList >= i then
+                if unlockList[i].name == unlockedName then
+                    unlockList[i].fn()
+                    table.remove(unlockList, i)
+                end
             end
         end
     end
@@ -100,31 +102,35 @@ function buyItem()
     local fnList = {}
     local indexRemove = {}
     for i = 1, 3 do
-        if unlockList[i].selected then
-            itemCost = itemCost + unlockList[i].price
-            table.insert(fnList, unlockList[i].fn)
-            table.insert(indexRemove, i)
+        if #unlockList >= i then
+            if unlockList[i].selected then
+                itemCost = itemCost + unlockList[i].price
+                table.insert(fnList, unlockList[i].fn)
+                table.insert(indexRemove, i)
+            end
         end
     end
     local font = love.graphics.newFont("sprites/yoster.ttf", 32)
 
-    if game.money >= itemCost then
-        game.money = game.money - itemCost
-        for _, fn in pairs(fnList) do
-            fn()
+    if #fnList > 0 then
+        if game.money >= itemCost then
+            game.money = game.money - itemCost
+            for _, fn in pairs(fnList) do
+                fn()
+            end
+            purchased = true
+            purchasedWav:play()
+            purchasedTimer:reset()
+            for _, i in pairs(indexRemove) do
+                table.insert(game.unlocks, unlockList[i].name)
+                table.remove(unlockList, i)
+            end
+        else
+            notEnough = true
+            notEnoughWavClone = notEnoughWav:clone()
+            notEnoughWavClone:play()
+            notEnoughTimer:reset()
         end
-        purchased = true
-        purchasedWav:play()
-        purchasedTimer:reset()
-        for _, i in pairs(indexRemove) do
-            table.insert(game.unlocks, unlockList[i].name)
-            table.remove(unlockList, i)
-        end
-    else
-        notEnough = true
-        notEnoughWavClone = notEnoughWav:clone()
-        notEnoughWavClone:play()
-        notEnoughTimer:reset()
     end
 end
 
@@ -143,39 +149,38 @@ function drawItems()
     love.graphics.print("Shop", font, 250, 50)
 
     for i = 1, 3 do
-        if #unlockList < i then
-            return
-        end
-        unlockList[i].x = (i *(200 + cardWidth)) - 220
-        unlockList[i].y = 180
-        if unlockList[i].selected then
-            unlockList[i].y = unlockList[i].y - 50
-        end
-        unlockList[i].scale = 1.3
-        card = unlockList[i]
-        love.graphics.setColor(1, 1, 1, 1)
-        if unlockList[i].card then
-            love.graphics.draw(spriteSheet, suits[card.suit], card.x, card.y, nil, card.scale, card.scale)
-            font = love.graphics.newFont("sprites/yoster.ttf", 32)
-            local textW = font:getWidth(card.number)
-            local textH = font:getHeight(card.number)
-            love.graphics.print(card.number, font, card.x + (((cardWidth * card.scale) - textW)/2), card.y 
-                                + (((cardHeight * card.scale) - textH)/2), nil, card.scale, card.scale)
-        else
-            love.graphics.draw(card.png, card.x, card.y, nil, card.scale, card.scale)
-        end
-        love.graphics.setColor(1, 0.792, 0.016, 1)
-        font = love.graphics.newFont("sprites/yoster.ttf", 32)
-        love.graphics.print(tostring(card.price) .. "$", font, card.x + (cardWidth * card.scale / 2), card.y + 250)
-        if purchased then
-            notEnough = false
+        if #unlockList >= i then
+            unlockList[i].x = (i *(200 + cardWidth)) - 220
+            unlockList[i].y = 180
+            if unlockList[i].selected then
+                unlockList[i].y = unlockList[i].y - 50
+            end
+            unlockList[i].scale = 1.3
+            card = unlockList[i]
+            love.graphics.setColor(1, 1, 1, 1)
+            if unlockList[i].card then
+                love.graphics.draw(spriteSheet, suits[card.suit], card.x, card.y, nil, card.scale, card.scale)
+                font = love.graphics.newFont("sprites/yoster.ttf", 32)
+                local textW = font:getWidth(card.number)
+                local textH = font:getHeight(card.number)
+                love.graphics.print(card.number, font, card.x + (((cardWidth * card.scale) - textW)/2), card.y 
+                                    + (((cardHeight * card.scale) - textH)/2), nil, card.scale, card.scale)
+            else
+                love.graphics.draw(card.png, card.x, card.y, nil, card.scale, card.scale)
+            end
             love.graphics.setColor(1, 0.792, 0.016, 1)
-            love.graphics.print("Purchased", font, 500, 500)
-        end
-        if notEnough then
-            purchased = false
-            love.graphics.setColor(1, 0.424, 0.016, 1)
-            love.graphics.print("Not Enough $", font, 500, 500)
+            font = love.graphics.newFont("sprites/yoster.ttf", 32)
+            love.graphics.print(tostring(card.price) .. "$", font, card.x + (cardWidth * card.scale / 2), card.y + 250)
+            if purchased then
+                notEnough = false
+                love.graphics.setColor(1, 0.792, 0.016, 1)
+                love.graphics.print("Purchased", font, 500, 500)
+            end
+            if notEnough then
+                purchased = false
+                love.graphics.setColor(1, 0.424, 0.016, 1)
+                love.graphics.print("Not Enough $", font, 500, 500)
+            end
         end
     end
 end
