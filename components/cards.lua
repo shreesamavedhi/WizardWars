@@ -61,6 +61,7 @@ function loadCards()
             table.insert(cards, card)
         end
     end
+    -- do we need to update game deck here?
     shuffleCards()
     topOfDeck = #cards
     drawHand(5)
@@ -80,6 +81,8 @@ function selectCards(x, y)
         local isSelecting = x > card.transform.x and x < card.transform.x + (cardWidth * cardScale) 
                     and y > card.transform.y and y < card.transform.y + (cardHeight * cardScale)
         if card.inHand and isSelecting then
+            selectCardWavClone = selectCardWav:clone()
+            selectCardWavClone:play()
             if cards[i].selected == true then
                 cards[i].selected = false
                 selectedScore = selectedScore - tonumber(cards[i].number)
@@ -93,12 +96,17 @@ end
 
 function discardCards()
     local disCard = playCards()
-    round.score = round.score - 1
-    drawHand(#disCard)
+    if #disCard > 0 then
+        notEnoughWavClone = notEnoughWav:clone()
+        notEnoughWavClone:play()
+        round.score = round.score - 1
+        drawHand(#disCard)
+    end
 end
 
 function scoreCards()
     local played = playCards()
+    if #played == 0 then return end
     drawHand(#played)
     local scoredNum = 0
     local suitMatches = false
@@ -131,20 +139,19 @@ function scoreCards()
 
         round.score = round.score + scoredNum
         goodScore = true
+        goodScoreWav:play()
         goodScoreTimer:reset()
-        -- cue score sound effect
         if suitMatches then
-            
             bonusScore = true
+            bonusWav:play()
             bonusScoreTimer:reset()
             round.score = round.score + 2
-            -- cue bonus sound effect
         end
     else
         badScore = true
+        badScoreWav:play()
         badScoreTimer:reset()
         round.score = round.score - 1
-        -- cue bad score sound effect
     end
 end
 

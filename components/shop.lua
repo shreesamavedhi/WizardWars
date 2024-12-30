@@ -15,6 +15,7 @@ function newCardUnlock(suit, number, price, name)
         fn = function()
             local unlocked = newCard(suit, tostring(number))
             local insertPos = love.math.random(1, #cards)
+            -- do we need to randomize the insert?
             table.insert(cards, unlocked)
             topOfDeck = topOfDeck + 1
         end
@@ -43,13 +44,14 @@ function loadShop()
         newCardUnlock("moon", 12, 3, "CRD_Twelve"),
         newCardUnlock("ice", -2, 3, "CRD_NegTwo")
     }
-    for i, curList in pairs(unlockList) do
-        for j, unlocked in pairs(game.unlocks) do
-            if curList[i].name == unlocked[j].name then
-                table.remove(unlockList, i)
-            end
-        end
-    end
+    -- below does not work for loading unlocks
+    -- for i, curList in pairs(unlockList) do
+    --     for j, unlocked in pairs(game.unlocks) do
+    --         if curList[i].name == unlocked[j].name then
+    --             table.remove(unlockList, i)
+    --         end
+    --     end
+    -- end
     purchasedTimer = cron.after(2, function()
         if purchased then
             purchased = false
@@ -76,6 +78,8 @@ function selectShop(x, y)
         local isSelecting = x > unlock.x and x < unlock.x + (cardWidth * unlock.scale) 
                     and y > unlock.y and y < unlock.y + (cardHeight * unlock.scale)
         if isSelecting then
+            selectCardWavClone = selectCardWav:clone()
+            selectCardWavClone:play()
             if unlockList[i].selected == true then
                 unlockList[i].selected = false
             else
@@ -109,6 +113,7 @@ function buyItem()
             fn()
         end
         purchased = true
+        purchasedWav:play()
         purchasedTimer:reset()
         for _, i in pairs(indexRemove) do
             table.insert(game.unlocks, unlockList[i])
@@ -116,6 +121,8 @@ function buyItem()
         end
     else
         notEnough = true
+        notEnoughWavClone = notEnoughWav:clone()
+        notEnoughWavClone:play()
         notEnoughTimer:reset()
     end
 end

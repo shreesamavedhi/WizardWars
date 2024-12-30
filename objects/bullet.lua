@@ -34,6 +34,7 @@ function updateBullet(dt)
                 and newY > enemy.y and newY < enemy.y + enemyHeight
         if enemyCollision and not round.polarMode then
             enemy.attackNums[1] = enemy.attackNums[1] - 1
+            hitWav:play()
             table.remove(bullets, i)
         end
         -- remove bullets that hit the player if polarMode and not shield repel
@@ -44,6 +45,7 @@ function updateBullet(dt)
                 updatePlayerSpells(i)
             else
                 player.defenseNum = player.defenseNum - 1
+                hitWav:play()
                 round.score = round.score - 1
                 if player.defenseNum <= 0 then
                     changeGameState("ended")

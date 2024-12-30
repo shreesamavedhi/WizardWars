@@ -14,7 +14,7 @@ function startGame()
 end
 
 function continueRun()
-    if love.filesystem.exists("saveGame.lua") then
+    if love.filesystem.getInfo("saveGame.lua") then
         print("Is it getting here?")
         jsonData = love.filesystem.read("saveGame.lua")
         data = json.decode(jsonData)

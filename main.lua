@@ -3,14 +3,29 @@ require "components"
 require "states"
 
 function love.load()
+    --libraries
     cron = require 'libraries/cron/cron'
     anim8 = require 'libraries/anim8/anim8'
     json = require('libraries/json4lua/json/json')
+
+    --music
+    mainLoop = love.audio.newSource("music/main.wav", "stream")
+    goodScoreWav = love.audio.newSource("music/goodScore.wav", "static")
+    badScoreWav = love.audio.newSource("music/badScore.wav", "static")
+    bonusWav = love.audio.newSource("music/bonus.wav", "static")
+    hitWav = love.audio.newSource("music/hit.wav", "static")
+    selectCardWav = love.audio.newSource("music/selectCard.wav", "static")
+    purchasedWav = love.audio.newSource("music/purchased.wav", "static")
+    notEnoughWav = love.audio.newSource("music/notEnough.wav", "static")
+    
+    --defaults
     screenWidth = love.graphics.getWidth()
     screenHeight = love.graphics.getHeight()
     love.graphics.setDefaultFilter("nearest", "nearest")
+
+    --load all items
     startGame()
-    -- loadGame()
+    loadBackground()
     loadMenu()
     loadPlayer()
     loadEnemy()
@@ -32,6 +47,9 @@ function love.mousepressed(x, y)
 end
 
 function love.update(dt)
+    if not mainLoop:isPlaying() then
+		love.audio.play(mainLoop)
+	end
     if game.state.running then
         updateBullet(dt)
         updatePlayer(dt)

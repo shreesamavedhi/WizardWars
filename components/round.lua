@@ -63,6 +63,16 @@ function drawRound()
     local font = love.graphics.newFont("sprites/yoster.ttf", 30)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print("Score " .. tostring(round.score), font, 1000, 50)
+    love.graphics.print("Round " .. tostring(game.round), font, 1000, 100)
+    font = love.graphics.newFont("sprites/yoster.ttf", 24)
+    if enemy.attackMagnet and not round.polarMode then
+        love.graphics.setColor(1, 0.294, 0, 1)
+        love.graphics.print("Magnet Active", font, 1000, 150)
+    end
+    if player.shieldRepel and round.polarMode then
+        love.graphics.setColor(1, 0.557, 1, 1)
+        love.graphics.print("Shield Active", font, 1000, 150)
+    end
 end
 
 function resetRound()
