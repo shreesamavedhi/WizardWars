@@ -48,20 +48,13 @@ function loadCards()
     suits["fire"] = love.graphics.newQuad(cardWidth * 3, 0, cardWidth, cardHeight, spriteSheet)
 
     cards = {}
-    if #game.deck == 0 then
-        -- create new deck
-        for suit, _ in pairs(suits) do
-            for j = 1, 9 do
-                table.insert(cards, newCard(suit, tostring(j)))
-            end
-        end
-    else
-        -- load game deck from save data
-        for _, card in pairs(game.deck) do
-            table.insert(cards, card)
+    -- create new deck
+    for suit, _ in pairs(suits) do
+        for j = 1, 9 do
+            table.insert(cards, newCard(suit, tostring(j)))
         end
     end
-    -- do we need to update game deck here?
+
     shuffleCards()
     topOfDeck = #cards
     drawHand(5)

@@ -42,9 +42,12 @@ function updateRound()
         else
             changeGameState("shop")
             game.round = game.round + 1
+            
+            -- update stats every round
             enemy.speed = enemy.speed + 0.05
             enemy.bulletSpeed = enemy.bulletSpeed + 0.2
             enemyAttackPeriod = enemyAttackPeriod - 0.2
+
             round.score = 0 
             returnToDeck()
             shuffleUnlocks()
@@ -76,9 +79,9 @@ function drawRound()
 end
 
 function resetRound()
-    loadCards()
-    loadEnemy()
+    loadShop()
     loadPlayer()
+    loadEnemy()
     loadRound()
     round.polarMode = false
     round.attackMode = true

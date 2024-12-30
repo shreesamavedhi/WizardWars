@@ -14,7 +14,7 @@ function newCardUnlock(suit, number, price, name)
         scale = 0,
         fn = function()
             local unlocked = newCard(suit, tostring(number))
-            local insertPos = love.math.random(1, #cards)
+            -- local insertPos = love.math.random(1, #cards)
             -- do we need to randomize the insert?
             table.insert(cards, unlocked)
             topOfDeck = topOfDeck + 1
@@ -44,14 +44,15 @@ function loadShop()
         newCardUnlock("moon", 12, 3, "CRD_Twelve"),
         newCardUnlock("ice", -2, 3, "CRD_NegTwo")
     }
-    -- below does not work for loading unlocks
-    -- for i, curList in pairs(unlockList) do
-    --     for j, unlocked in pairs(game.unlocks) do
-    --         if curList[i].name == unlocked[j].name then
-    --             table.remove(unlockList, i)
-    --         end
-    --     end
-    -- end
+    -- load unlocks
+    for i, curList in pairs(unlockList) do
+        for _, unlockedName in pairs(game.unlocks) do
+            if curList.name == unlockedName then
+                unlockList[i].fn()
+                table.remove(unlockList, i)
+            end
+        end
+    end
     purchasedTimer = cron.after(2, function()
         if purchased then
             purchased = false
@@ -116,7 +117,7 @@ function buyItem()
         purchasedWav:play()
         purchasedTimer:reset()
         for _, i in pairs(indexRemove) do
-            table.insert(game.unlocks, unlockList[i])
+            table.insert(game.unlocks, unlockList[i].name)
             table.remove(unlockList, i)
         end
     else
