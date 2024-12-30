@@ -4,15 +4,16 @@ function loadEnemy()
         x = 500,
         y = 200,
         speed = 0.1,
-        scale = 3.5,
         vx = 1,
         vy = 1,
         attackMagnet = false,
         attackColors = {},
         attackNums = {},
-        spriteSheet = love.graphics.newImage('sprites/player.png'),
+        spriteSheet = love.graphics.newImage('sprites/enemy.png'),
     }
     enemyWidth, enemyHeight = 100, 100
+    local grid = anim8.newGrid(50, 50, enemy.spriteSheet:getWidth(), enemy.spriteSheet:getHeight())
+    enemy.anim = anim8.newAnimation(grid('1-9', 1), 0.1)
     loadAttackNums()
 end
 
@@ -64,11 +65,12 @@ function updateEnemy(dt)
         round.score = round.score + 1
         removeAttackNum()
     end
+    enemy.anim:update(dt)
 end
 
 function drawEnemy()
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("fill", enemy.x, enemy.y, enemyWidth, enemyHeight)
+    enemy.anim:draw(enemy.spriteSheet, enemy.x, enemy.y, nil, 2, 2)
     if not round.polarMode then
         love.graphics.setColor(unpack(colors[enemy.attackColors[1]]))
         local font = love.graphics.newFont("sprites/yoster.ttf", 32)

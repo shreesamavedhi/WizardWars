@@ -79,7 +79,7 @@ end
 function drawPlayer()
     player.anim:draw(player.spriteSheet, player.x, player.y, nil, player.scale, player.scale)
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("line", player.x, player.y, playerHeight, playerWidth)
+    -- love.graphics.rectangle("line", player.x, player.y, playerHeight, playerWidth)
     if round.polarMode then
         player.defenseNum = player.defenseNum or love.math.random(10, 30)
         player.defenseColor = player.defenseColor or colorArray[love.math.random(1, #colorArray)]
