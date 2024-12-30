@@ -24,24 +24,43 @@ function updateBullet(dt)
         bullet.x = newX
         bullet.y = newY
         -- remove bullets that are out of bounds
-        if newX < backgroundX or newX > backgroundWidth + backgroundX
-        or newY < backgroundY or newY > backgroundHeight + backgroundY then
-            print("removed out of bounds")
+        local outOfBounds = newX < backgroundX or newX > backgroundWidth + backgroundX
+                or newY < backgroundY or newY > backgroundHeight + backgroundY
+        if outOfBounds then
             table.remove(bullets, i)
         end
         -- remove bullets that hit the enemy if not polarMode
-        if newX > enemy.x and newX < enemy.x + enemyWidth 
-        and newY > enemy.y and newY < enemy.y + enemyHeight and not round.polarMode then
+        local enemyCollision = newX > enemy.x and newX < enemy.x + enemyWidth 
+                and newY > enemy.y and newY < enemy.y + enemyHeight
+        if enemyCollision and not round.polarMode then
             enemy.attackNums[1] = enemy.attackNums[1] - 1
             table.remove(bullets, i)
         end
-        -- remove bullets that hit the player if polarMode
-        if newX > player.x and newX < player.x + playerWidth 
-        and newY > player.y and newY < player.y + playerHeight and round.polarMode then
-            print("removed hit player")
-            player.defenseNum = player.defenseNum - 1
-            table.remove(bullets, i)
+        -- remove bullets that hit the player if polarMode and not shield repel
+        local playerCollision = newX > player.x and newX < player.x + playerWidth 
+            and newY > player.y and newY < player.y + playerHeight
+        if playerCollision and round.polarMode then
+            if player.shieldRepel then
+                updatePlayerSpells(i)
+            else
+                player.defenseNum = player.defenseNum - 1
+                round.score = round.score - 1
+                if player.defenseNum <= 0 then
+                    changeGameState("ended")
+                end
+                table.remove(bullets, i)
+            end
         end
+        if round.polarMode and player.shieldRepel then
+            shieldTimer:update(dt)
+        end
+    end
+    -- defend mode
+    if round.polarMode and round.enemyAttack then
+        local bvx, bvy = distanceFrom(player.x + (playerWidth / 2), player.y + (playerHeight / 2), enemy.x + (enemyWidth / 2), enemy.y + (enemyHeight / 2))
+        addBullet(enemy.x + (enemyWidth / 2), enemy.y + (enemyHeight / 2), bvx * enemy.bulletSpeed, bvy * enemy.bulletSpeed)
+        round.enemyAttack = false
+        enemyAttackReset:reset(dt)
     end
     -- attack mode
     if not round.polarMode and round.attackMode and not bulletSelector then
@@ -50,7 +69,6 @@ function updateBullet(dt)
         attackReset:reset(dt)
     end
     if bulletSelector and isDown("space") and round.attackMode then
-        print("SECOND SPACE")
         local bvx = math.cos(lastBulletAngle)
         local bvy = math.sin(lastBulletAngle)
         addBullet(lastBx, lastBy, bvx, bvy)
@@ -58,6 +76,7 @@ function updateBullet(dt)
     end
     attackReset:update(dt)
     updateEnemySpells(dt)
+    enemyAttackReset:update(dt)
 end
 
 function updateEnemySpells(dt)
@@ -67,6 +86,12 @@ function updateEnemySpells(dt)
         end
         magnetTimer:update(dt)
     end
+end
+
+function updatePlayerSpells(index)
+    bullet = bullets[index]
+    bullet.vx = bullet.vx * -1
+    bullet.vy = bullet.vy * -1
 end
 
 function drawBullets()

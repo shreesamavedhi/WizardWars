@@ -1,10 +1,10 @@
-local deckX, deckY = 90, 520
+local deckX, deckY = 100, 520
 local cardScale = 0.7
-local selectedScore = 0
+local selectedScore = nil
 local suitMatches = false
-local topOfDeck = nil
+topOfDeck = nil
+local goodScore, badScore, bonusScore = false
 
-local
 function newCard(suit, number)
     return {
         inHand = false,
@@ -20,6 +20,22 @@ function newCard(suit, number)
 end
 
 function loadCards()
+    goodScoreTimer = cron.after(2, function()
+        if goodScore then
+            goodScore = false
+        end
+    end)
+    badScoreTimer = cron.after(2, function()
+        if badScore then
+            badScore = false
+        end
+    end)
+    bonusScoreTimer = cron.after(2, function()
+        if bonusScore then
+            bonusScore = false
+        end
+    end)
+
     cardWidth = 126
     cardHeight = 176
     
@@ -47,8 +63,8 @@ function loadCards()
     end
     shuffleCards()
     topOfDeck = #cards
-    print("Load", 5)
     drawHand(5)
+    selectedScore = 0
 end
 
 function shuffleCards()
@@ -77,6 +93,7 @@ end
 
 function discardCards()
     local disCard = playCards()
+    round.score = round.score - 1
     drawHand(#disCard)
 end
 
@@ -112,15 +129,21 @@ function scoreCards()
         removeDefenseNum()
         removeAttackNum()
 
-        print("GOOD SCORE")
+        round.score = round.score + scoredNum
+        goodScore = true
+        goodScoreTimer:reset()
         -- cue score sound effect
         if suitMatches then
-            player.bonus = true
-            print("BONUS")
+            
+            bonusScore = true
+            bonusScoreTimer:reset()
+            round.score = round.score + 2
             -- cue bonus sound effect
         end
     else
-        print("BAD SCORE")
+        badScore = true
+        badScoreTimer:reset()
+        round.score = round.score - 1
         -- cue bad score sound effect
     end
 end
@@ -139,7 +162,7 @@ function playCards()
     return played
 end
 
-function updateCards()
+function updateCards(dt)
     margin = 70 / 5
     selectHeight = 500
     local inHandCount = 0
@@ -154,10 +177,13 @@ function updateCards()
             end
         end
     end
+    goodScoreTimer:update(dt)
+    badScoreTimer:update(dt)
+    bonusScoreTimer:update(dt)
 end
 
 function dealCard()
-    if #cards == 0 then return end
+    if topOfDeck <= 0 then return end
     cards[topOfDeck].inHand = true
     topOfDeck = topOfDeck - 1
 end
@@ -176,26 +202,40 @@ function returnToDeck()
         cards[i].transform.x = deckX
         cards[i].transform.y = deckY
     end
+    topOfDeck = #cards
     shuffleCards()
+    goodScore, badScore, bonusScore = false
+    selectedScore = 0
 end
 
-local font = nil
 function drawCards()
-    font = love.graphics.newFont(32)
+    local font = love.graphics.newFont("sprites/yoster.ttf", 32)
+    love.graphics.setColor(1, 1, 1, 1)
     for i, card in pairs(cards) do
         if card.inHand then
-            love.graphics.setColor(1, 1, 1, 1)
-            -- print(card.transform.x, card.transform.y)
             love.graphics.draw(spriteSheet, suits[card.suit], card.transform.x, card.transform.y, nil, cardScale, cardScale)
             local textW = font:getWidth(card.number)
             local textH = font:getHeight(card.number)
-            love.graphics.setColor(1, 1, 1, 1)
             love.graphics.print(card.number, font, card.transform.x + (((cardWidth * cardScale) - textW)/2), card.transform.y + (((cardHeight * cardScale) - textH)/2), nil, cardScale, cardScale)
         elseif not card.discarded then
-            love.graphics.setColor(1, 1, 1, 1)
             love.graphics.draw(deckBack, card.transform.x - (i*0.2), card.transform.y + (i*0.2), nil, cardScale, cardScale)
         end
     end
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print(tostring(selectedScore), font, 90, 500)
+    if game.state.running then
+        love.graphics.print("Spell", font, 1030, 380)
+        love.graphics.print(tostring(selectedScore), font, 1060, 430)
+        love.graphics.circle("line", 1075, 420, 63)
+        if goodScore then
+            love.graphics.setColor(0, 0.961, 0.306, 1)
+            love.graphics.print("Score!", font, 1000, 200)
+        end
+        if badScore then
+            love.graphics.setColor(0.988, 0.165, 0.306, 1)
+            love.graphics.print("Miss..", font, 1000, 200)
+        end
+        if bonusScore then
+            love.graphics.setColor(0.165, 0.537, 0.988, 1)
+            love.graphics.print("Bonus!", font, 1000, 300)
+        end
+    end
 end

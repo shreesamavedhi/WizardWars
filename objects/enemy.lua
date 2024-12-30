@@ -1,5 +1,6 @@
 function loadEnemy()
     enemy = {
+        bulletSpeed = 1,
         x = 500,
         y = 200,
         speed = 0.1,
@@ -59,6 +60,10 @@ function updateEnemy(dt)
             enemy.x = newX
             enemy.y = newY
     end
+    if enemy.attackNums[1] == 0 then
+        round.score = round.score + 1
+        removeAttackNum()
+    end
 end
 
 function drawEnemy()
@@ -66,7 +71,7 @@ function drawEnemy()
     love.graphics.rectangle("fill", enemy.x, enemy.y, enemyWidth, enemyHeight)
     if not round.polarMode then
         love.graphics.setColor(unpack(colors[enemy.attackColors[1]]))
-        local font = love.graphics.newFont(32)
+        local font = love.graphics.newFont("sprites/yoster.ttf", 32)
         local textW = font:getWidth(tostring(enemy.attackNums[1]))
         local textH = font:getHeight(tostring(enemy.attackNums[1]))
         local textXMargin = 40

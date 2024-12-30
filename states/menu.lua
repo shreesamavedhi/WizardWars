@@ -12,7 +12,7 @@ local buttons = {}
 local font = nil
 
 function loadMenu()
-    font = love.graphics.newFont(32)
+    font = love.graphics.newFont("sprites/yoster.ttf", 32)
     table.insert(buttons, newButton(
         "Start New Run",
         function()
@@ -23,18 +23,6 @@ function loadMenu()
         "Continue Run",
         function()
             continueRun()
-        end
-    ))
-    table.insert(buttons, newButton(
-        "Collections",
-        function()
-            print("Collections")
-        end
-    ))
-    table.insert(buttons, newButton(
-        "Settings",
-        function()
-            print("Settings")
         end
     ))
     table.insert(buttons, newButton(

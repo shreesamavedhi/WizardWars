@@ -1,4 +1,15 @@
 function loadPlayer()
+    colors = {
+        ["ice"] = {0.647, 0.835, 0.875, 1},
+        ["fire"] = {0.882, 0.682, 0.596, 1},
+        ["sun"] = {0.937, 0.859, 0.702, 1},
+        ["moon"] = {0.718, 0.624, 0.733, 1}
+    }
+    
+    colorArray = {
+        "ice", "fire", "sun", "moon"
+    }
+
     player = {
         x = 200,
         y = 200,
@@ -7,7 +18,6 @@ function loadPlayer()
         vx = 1,
         vy = 1,
         shieldRepel = false,
-        bonus = false,
         defenseNum = nil,
         defenseColor = nil,
         spriteSheet = love.graphics.newImage('sprites/player.png'),
@@ -58,13 +68,6 @@ function updatePlayer(dt)
     end
     player.anim = (lvx~=0 or lvy~=0) and animTable[player.vx] or stillTable[player.vx]
     player.anim:update(dt)
-    updatePlayerSpells(dt)
-end
-
-function updatePlayerSpells(dt)
-    if player.shieldRepel and round.polarMode then
-
-    end
 end
 
 function removeDefenseNum()
@@ -72,17 +75,6 @@ function removeDefenseNum()
         player.defenseNum, player.defenseColor = nil, nil
     end
 end
-
-colors = {
-    ["ice"] = {0.647, 0.835, 0.875, 1},
-    ["fire"] = {0.882, 0.682, 0.596, 1},
-    ["sun"] = {0.937, 0.859, 0.702, 1},
-    ["moon"] = {0.718, 0.624, 0.733, 1}
-}
-
-colorArray = {
-    "ice", "fire", "sun", "moon"
-}
 
 function drawPlayer()
     player.anim:draw(player.spriteSheet, player.x, player.y, nil, player.scale, player.scale)
@@ -92,7 +84,7 @@ function drawPlayer()
         player.defenseNum = player.defenseNum or love.math.random(10, 30)
         player.defenseColor = player.defenseColor or colorArray[love.math.random(1, #colorArray)]
         love.graphics.setColor(unpack(colors[player.defenseColor]))
-        local font = love.graphics.newFont(32)
+        local font = love.graphics.newFont("sprites/yoster.ttf", 32)
         local textW = font:getWidth(tostring(player.defenseNum))
         local textH = font:getHeight(tostring(player.defenseNum))
         local textXMargin = 40

@@ -15,12 +15,12 @@ local shopButtons = {}
 local font = nil
 
 function loadButtons()
-    font = love.graphics.newFont(20)
+    font = love.graphics.newFont("sprites/yoster.ttf", 18)
     table.insert(shopButtons, newButton(
         "Save & Exit",
         function()
             saveGame()
-            changeGameState("ended")
+            changeGameState("menu")
         end,
         1000,
         50
@@ -28,7 +28,7 @@ function loadButtons()
     table.insert(shopButtons, newButton(
         "Buy Spell",
         function()
-            print("Bought Spell")
+            buyItem()
         end,
         1000,
         150
@@ -36,7 +36,7 @@ function loadButtons()
     table.insert(shopButtons, newButton(
         "Next Round",
         function()
-            print("Next Round")
+            nextRound()
         end,
         1000,
         250
@@ -98,7 +98,7 @@ function drawButtons()
             10
         )
 
-        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.setColor(1, 1, 1, 1)
         local textW = font:getWidth(button.text)
         local textH = font:getHeight(button.text)
         love.graphics.print(

@@ -1,25 +1,47 @@
-function loadGame()
-    data = loadData()
+function startGame()
     game = {
-        level = data.level,
-        round = data.round,
-        deck = data.deck,
-        unlocks = data.unlocks,
-        state = data.state
+        round = 0,
+        deck = {},
+        unlocks = {},
+        money = 0,
+        state = {
+            ["menu"] = true,
+            ["paused"] = false,
+            ["running"] = false,
+            ["ended"] = false
+        }
     }
 end
 
 function continueRun()
-    if not game.state.running then
-        print("No run started")
-        return
+    if love.filesystem.exists("saveGame.lua") then
+        print("Is it getting here?")
+        jsonData = love.filesystem.read("saveGame.lua")
+        data = json.decode(jsonData)
+        print(data)
+        game = {
+            round = data.round,
+            deck = data.deck,
+            unlocks = data.unlocks,
+            money = data.money,
+            state = data.state
+        }
+        resetRound()
+        love.graphics.clear()
     end
 end
 
+function resetGame()
+    game.round = 0
+    game.deck = {}
+    game.unlocks = {}
+    game.money = 0
+end
+
 function startNewRun()
-    if game.state.running then
-        changeGameState("ended")
-    end
+    _ = love.filesystem.remove("saveGame.lua")
+    resetGame()
+    resetRound()
     changeGameState("running")
     love.graphics.clear()
 end
@@ -31,8 +53,17 @@ function changeGameState(state)
     game.state.ended = state == "ended"
 
     if game.state.ended then
-       game.level = 0
-       game.round = 0
-       game.deck = {}
+        resetGame()
     end
+end
+
+function saveGame()
+    data = {
+        level = game.level,
+        round = game.round,
+        deck = game.deck,
+        unlocks = game.unlocks,
+        state = game.state,
+    }
+    love.filesystem.write("saveGame.lua", json.encode(data))
 end
